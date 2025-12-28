@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohammed Afroz | Operations Intelligence</title>
+    
+    <!-- Fonts: Inter for UI, JetBrains Mono for System Data -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        neon: {
+                            blue: '#00f3ff',
+                            purple: '#bc13fe',
+                            red: '#ff3333',
+                            green: '#0aff0a'
+                        },
+                        glass: {
+                            dark: 'rgba(10, 10, 15, 0.7)',
+                            border: 'rgba(255, 255, 255, 0.1)',
+                            highlight: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'scanline': 'scanline 8s linear infinite',
+                        'glitch': 'glitch 1s linear infinite',
+                        'radar': 'radar 3s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' },
+                        },
+                        radar: {
+                            '0%': { transform: 'scale(0)', opacity: '0.5' },
+                            '100%': { transform: 'scale(2)', opacity: '0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- CORE SYSTEM AESTHETICS --- */
+        :root {
+            font-size: 16px; 
+        }
+
+        body {
+            background-color: #050508;
+            color: #e0e0e0;
+            overflow: hidden; /* Controlled by JS */
+            cursor: default;
+            line-height: 1.6;
+        }
+
+        /* Glassmorphism Engine */
+        .glass-panel {
+            background: rgba(13, 13, 18, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08); /* Increased contrast */
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 243, 255, 0.4);
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 50px -10px rgba(0, 243, 255, 0.15);
+        }
+
+        /* Access Buttons */
+        .access-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .access-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+        
+        .access-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Horizontal Scroll Architecture */
+        .horizontal-scroll-wrapper {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: hidden;
+            height: 100vh;
+            width: 100vw;
+            scroll-behavior: smooth;
+            scroll-snap-type: x proximity;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .horizontal-scroll-wrapper::-webkit-scrollbar { 
+            display: none;
+        }
+
+        .section-slide {
+            flex: 0 0 100vw;
+            height: 100vh;
+            scroll-snap-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column; /* Force vertical stacking */
+            align-items: center;
+            justify-content: flex-start; /* Start from top, not center, to prevent overlap */
+            padding-top: 140px; /* INCREASED PADDING TO CLEAR NAV DOTS */
+            padding-bottom: 40px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            overflow-y: auto; /* ALLOW VERTICAL SCROLLING IF CONTENT IS TOO LONG */
+        }
+        
+        .slide-content-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: auto 0; /* Vertically center if space permits */
+        }
+
+        /* Animation System: Staggered Reveal */
+        .reveal-hidden {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Typewriter Cursor */
+        .typing-cursor::after {
+            content: '█';
+            display: inline-block;
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+            color: #00f3ff;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Timeline Connector */
+        .timeline-connector {
+            position: absolute;
+            top: 2rem;
+            left: -2rem;
+            width: 2rem;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Security Redaction */
+        .visitor-view .sensitive-data {
+            filter: blur(8px);
+            user-select: none;
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .visitor-view .sensitive-data::after {
+            content: "RESTRICTED";
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: #ff3333;
+            letter-spacing: 2px;
+            background: rgba(0,0,0,0.9);
+            padding: 2px 6px;
+            border: 1px solid #ff3333;
+            z-index: 10;
+        }
+
+        /* Area 52 Theme */
+        .area-52-border {
+            border: 1px solid rgba(10, 255, 10, 0.3);
+            box-shadow: 0 0 15px rgba(10, 255, 10, 0.1);
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            :root {
+                font-size: 14px; /* Reset for mobile */
+            }
+            .horizontal-scroll-wrapper {
+                flex-direction: column;
+                overflow-x: hidden;
+                overflow-y: auto;
+                scroll-snap-type: y mandatory;
+            }
+            .section-slide {
+                flex: 0 0 100vh;
+                height: auto;
+                min-height: 100vh;
+                scroll-snap-align: start;
+                padding-top: 100px;
+                padding-bottom: 80px;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                justify-content: flex-start;
+                overflow-y: visible; /* Let the wrapper handle scroll */
+            }
+            .reveal-hidden { transform: translateY(30px); }
+            .reveal-visible { transform: translateY(0); }
+        }
+
+        .bg-grid {
+            background-size: 60px 60px; /* Slightly larger grid */
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        .inner-scroll::-webkit-scrollbar { width: 4px; }
+        .inner-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .inner-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        
+        /* Toast Animation */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-enter { animation: slideIn 0.3s ease-out forwards; }
+
+        /* Admin Styles */
+        .admin-tab-active {
+            background-color: rgba(188, 19, 254, 0.1);
+            border-color: #bc13fe;
+            color: #bc13fe;
+        }
+    </style>
+</head>
+<body id="app-body">
+
+    <!-- SYSTEM LAYER -->
+    <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full -z-10 opacity-40"></canvas>
+    <div class="fixed top-0 left-0 w-full h-full -z-10 bg-grid pointer-events-none"></div>
+
+    <!-- ENTRY MODAL -->
+    <div id="entry-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-3xl transition-opacity duration-1000">
+        <div class="absolute top-10 left-10 font-mono text-sm text-white/40">
+            SYSTEM_ID: AFROZ_OPS_INTEL <br>
+            ENCRYPTION: AES-300
+        </div>
+
+        <div class="text-center mb-16 relative group">
+            <div class="absolute -inset-4 bg-neon-blue/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition duration-700"></div>
+            <i data-lucide="shield-check" class="w-20 h-20 mx-auto mb-6 text-neon-blue animate-pulse-slow"></i>
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">IDENTIFY ACCESS TYPE</h1>
+            <p class="text-white/50 font-mono text-sm tracking-widest">SELECT PROTOCOL TO PROCEED</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8 md:gap-16">
+            <!-- HR Button -->
+            <button onclick="initSystem('hr')" class="access-btn group relative w-72 h-40 rounded-xl glass-panel flex flex-col items-center justify-center hover:border-neon-blue/50">
+                <div class="absolute inset-0 bg-neon-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i data-lucide="scan-face" class="w-10 h-10 mb-4 text-white/70 group-hover:text-neon-blue transition-colors"></i>
+                <span class="text-xl font-bold tracking-wider">HR / RECRUITER</span>
+                <span class="text-xs text-white/40 mt-2 font-mono">FULL CLEARANCE + METRICS</span>
+                <div class="mt-4 flex gap-1">
+                    <div class="w-1.5 h-1.5 bg-neon-blue rounded-full"></div>
+                    <div class="w-1.5 h-1.5 bg-neon-blue rounded-full animate-ping"></div>
+                    <div class="w-1.5 h-1.5 bg-neon-blue rounded-full"></div>
+                </div>
+            </button>
+
+            <!-- Visitor Button -->
+            <button onclick="initSystem('visitor')" class="access-btn group relative w-72 h-40 rounded-xl glass-panel flex flex-col items-center justify-center hover:border-white/40">
+                <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i data-lucide="globe-2" class="w-10 h-10 mb-4 text-white/70 group-hover:text-white transition-colors"></i>
+                <span class="text-xl font-bold tracking-wider">VISITOR</span>
+                <span class="text-xs text-white/40 mt-2 font-mono">RESTRICTED VIEW // PUBLIC DATA</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- LOADING SEQUENCE -->
+    <div id="loading-screen" class="fixed inset-0 z-40 hidden flex-col items-center justify-center bg-black">
+        <div class="w-full max-w-lg px-8">
+            <div class="flex justify-between text-sm font-mono text-neon-blue mb-2">
+                <span>SYSTEM_BOOT</span>
+                <span id="loader-percent">0%</span>
+            </div>
+            
+            <div class="h-1.5 w-full bg-white/10 mb-8 overflow-hidden rounded-full">
+                <div id="loader-bar" class="h-full bg-neon-blue w-0 transition-all duration-300 ease-out"></div>
+            </div>
+
+            <div class="font-mono text-sm h-32 overflow-hidden border-l-2 border-neon-blue/30 pl-4 relative">
+                <div id="console-output" class="flex flex-col justify-end h-full text-white/70 space-y-1"></div>
+                <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INTERFACE -->
+    <main id="main-interface" class="opacity-0 transition-opacity duration-1000">
+        
+        <!-- Fixed HUD -->
+        <nav class="fixed top-0 left-0 w-full z-30 px-8 py-5 flex justify-between items-center pointer-events-none mix-blend-difference">
+            <div class="flex items-center gap-3 pointer-events-auto">
+                <div class="w-3 h-3 bg-neon-blue rounded-full animate-pulse"></div>
+                <span class="font-mono text-sm tracking-widest font-bold">AFROZ // INTELLIGENCE</span>
+            </div>
+            
+            <!-- Section Indicators -->
+            <div class="hidden md:flex gap-4 pointer-events-auto">
+                <button onclick="scrollToSection(0)" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-white transition-colors"></button>
+                <button onclick="scrollToSection(1)" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-white transition-colors"></button>
+                <button onclick="scrollToSection(2)" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-white transition-colors"></button>
+                <button onclick="scrollToSection(3)" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-white transition-colors"></button>
+                <button onclick="scrollToSection(4)" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-white transition-colors"></button>
+                <button onclick="scrollToSection(5)" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-white transition-colors"></button>
+                <button onclick="scrollToSection(6)" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-neon-green transition-colors"></button>
+            </div>
+
+            <div class="font-mono text-xs text-right opacity-60">
+                ACCESS: <span id="access-level-display" class="text-neon-blue">UNKNOWN</span><br>
+                SESSION: <span id="session-id">LOADING...</span>
+            </div>
+        </nav>
+
+        <div id="scroll-container" class="horizontal-scroll-wrapper">
+
+            <!-- 1. ABOUT / CONFIDENTIAL -->
+            <section id="sec-1" class="section-slide">
+                <div class="slide-content-wrapper">
+                    <div class="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-12 items-center reveal-hidden">
+                        <div class="md:col-span-5 relative">
+                            <div class="w-full aspect-[4/5] rounded-xl overflow-hidden glass-panel relative group">
+                                 <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10"></div>
+                                 <div id="profile-img-container" class="absolute inset-0 flex items-center justify-center bg-gray-900">
+                                    <i data-lucide="user" class="w-32 h-32 text-white/10"></i>
+                                 </div>
+                                 <div class="absolute bottom-6 left-6 z-20">
+                                    <h3 class="text-xl font-bold text-white" id="profile-name">Subject: Mohammed Afroz</h3>
+                                    <p class="text-neon-blue font-mono text-xs mt-1" id="profile-title">OPERATIONS SPECIALIST</p>
+                                 </div>
+                                 <div class="absolute top-0 left-0 w-full h-1 bg-neon-blue/50 shadow-[0_0_15px_rgba(0,243,255,0.5)] animate-scanline pointer-events-none"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="md:col-span-7">
+                            <div class="flex items-center gap-3 mb-6">
+                                <span class="px-2 py-1 bg-neon-blue/10 border border-neon-blue/30 text-neon-blue text-[10px] font-mono tracking-widest rounded">CONFIDENTIAL DOSSIER</span>
+                            </div>
+                            <h1 class="text-5xl md:text-7xl font-bold mb-8 tracking-tight leading-none" id="about-headline">Systematic <br><span class="text-white/40">Growth.</span></h1>
+                            <p class="text-lg text-white/80 leading-relaxed mb-6 min-h-[100px]" id="about-text">
+                                <!-- Content loaded via Auto-Typewriter -->
+                            </p>
+                            <div class="grid grid-cols-2 gap-4 max-w-md">
+                                <div class="glass-panel p-4 rounded-lg flex items-center gap-3">
+                                    <i data-lucide="database" class="w-5 h-5 text-neon-purple"></i>
+                                    <div class="text-xs">
+                                        <span class="block text-white/40 text-[10px] font-mono mb-1">SPECIALTY</span>
+                                        DATA SYSTEMS
+                                    </div>
+                                </div>
+                                <div class="glass-panel p-4 rounded-lg flex items-center gap-3">
+                                    <i data-lucide="activity" class="w-5 h-5 text-neon-blue"></i>
+                                    <div class="text-xs">
+                                        <span class="block text-white/40 text-[10px] font-mono mb-1">STATUS</span>
+                                        OPERATIONAL
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. EXPERIENCE TIMELINE -->
+            <section id="sec-2" class="section-slide">
+                <div class="slide-content-wrapper w-full">
+                    <div class="w-full max-w-7xl px-4">
+                        <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-4 reveal-hidden">
+                            <div>
+                                <span class="text-xs font-mono text-neon-blue mb-1 block">CHRONOLOGICAL DATA</span>
+                                <h2 class="text-4xl font-bold">Operational Timeline</h2>
+                            </div>
+                            <span class="font-mono text-xs text-white/40 hidden md:block">CLICK MODULES FOR TACTICAL BREAKDOWN ></span>
+                        </div>
+                        
+                        <div class="relative">
+                            <!-- Horizontal Axis Line -->
+                            <div class="absolute top-8 left-0 w-full h-[2px] bg-white/10 border-t border-dashed border-white/20 z-0"></div>
+                            
+                            <div id="experience-container" class="flex gap-8 overflow-x-auto pb-12 pt-4 inner-scroll snap-x relative z-10 pl-4">
+                                <!-- JS GENERATED CONTENT -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. SKILLS MATRIX -->
+            <section id="sec-3" class="section-slide">
+                <div class="slide-content-wrapper w-full">
+                    <div class="w-full max-w-6xl px-4">
+                        <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-4 reveal-hidden">
+                            <div>
+                                <span class="text-xs font-mono text-neon-purple mb-1 block">CAPABILITY MATRIX</span>
+                                <h2 class="text-4xl font-bold">Skills & Systems</h2>
+                            </div>
+                            <span class="font-mono text-xs text-white/40 hidden md:block">SCROLL TO INSPECT ></span>
+                        </div>
+                        
+                        <div id="skills-container" class="flex gap-8 overflow-x-auto pb-10 inner-scroll snap-x pt-4 pl-4">
+                             <!-- JS GENERATED CONTENT -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+             <!-- 4. EDUCATION & CERTS -->
+             <section id="sec-4" class="section-slide">
+                <div class="slide-content-wrapper w-full">
+                    <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-12 reveal-hidden">
+                        <!-- Education -->
+                        <div class="relative">
+                            <div class="absolute -left-4 top-0 h-full w-1 bg-gradient-to-b from-neon-blue to-transparent opacity-50"></div>
+                            <h2 class="text-3xl font-bold mb-8">Academic Record</h2>
+                            <div id="education-container">
+                                 <!-- JS GENERATED CONTENT -->
+                            </div>
+                        </div>
+
+                        <!-- Certifications -->
+                        <div>
+                            <h2 class="text-3xl font-bold mb-8">Authenticated Skills</h2>
+                            <div id="certs-container" class="space-y-4">
+                                 <!-- JS GENERATED CONTENT -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+             <!-- 5. PROJECTS -->
+             <section id="sec-5" class="section-slide">
+                <div class="slide-content-wrapper w-full">
+                    <div class="w-full max-w-7xl px-4">
+                         <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-4 reveal-hidden">
+                            <div>
+                                <span class="text-xs font-mono text-neon-purple mb-1 block">EXECUTED INITIATIVES</span>
+                                <h2 class="text-4xl font-bold">Key Projects</h2>
+                            </div>
+                            <span class="font-mono text-xs text-white/40 hidden md:block">SCROLL TO VIEW PROJECTS ></span>
+                        </div>
+
+                        <div id="projects-container" class="flex gap-8 overflow-x-auto pb-12 pt-4 inner-scroll snap-x pl-4">
+                            <!-- JS GENERATED CONTENT -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+             <!-- 6. FUTURE & RESUME -->
+             <section id="sec-6" class="section-slide">
+                <div class="slide-content-wrapper w-full">
+                    <div class="w-full max-w-4xl text-center reveal-hidden">
+                        <div class="glass-card p-10 md:p-16 rounded-2xl relative overflow-hidden mb-8 border-t-2 border-neon-blue/20">
+                            <div class="absolute inset-0 bg-gradient-to-b from-neon-blue/5 to-transparent pointer-events-none"></div>
+                            
+                            <h2 class="text-4xl md:text-5xl font-bold mb-8">System Trajectory</h2>
+                            <p class="text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-12 font-light" id="future-text">
+                                Loading future data...
+                            </p>
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col md:flex-row justify-center gap-6">
+                                <a href="mailto:contact@example.com" class="group relative px-8 py-4 bg-neon-blue/10 border border-neon-blue text-neon-blue rounded-lg overflow-hidden font-bold tracking-wider hover:bg-neon-blue hover:text-black transition-all duration-300">
+                                    <div class="absolute inset-0 bg-neon-blue/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <span class="relative flex items-center gap-2 text-base">
+                                        INITIATE CONTACT <i data-lucide="send" class="w-4 h-4"></i>
+                                    </span>
+                                </a>
+
+                                <!-- Resume Button -->
+                                <div id="resume-container">
+                                    <a href="#" id="resume-btn" class="group relative px-8 py-4 bg-white/5 border border-white/20 text-white rounded-lg overflow-hidden font-bold tracking-wider hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2 text-base">
+                                        DOWNLOAD DATA PACK <i data-lucide="download" class="w-4 h-4"></i>
+                                    </a>
+                                </div>
+                                <div id="resume-locked" class="hidden px-8 py-4 border border-white/5 text-white/30 rounded-lg flex items-center justify-center gap-2 cursor-not-allowed font-mono text-sm bg-black/50">
+                                    <i data-lucide="lock" class="w-4 h-4"></i> DATA PACK LOCKED
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. CONTACT / AREA 52 -->
+            <section id="sec-7" class="section-slide">
+                <div class="slide-content-wrapper w-full">
+                    <div class="w-full max-w-5xl reveal-hidden">
+                        <div class="flex items-center gap-4 mb-12">
+                             <div class="w-3 h-3 bg-neon-green rounded-full animate-ping"></div>
+                             <h2 class="text-5xl font-bold tracking-tight text-neon-green" style="text-shadow: 0 0 20px rgba(10,255,10,0.4);">AREA 52 // SECURE COMMS</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+                            <!-- Radar / Visual -->
+                            <div class="md:col-span-5 flex items-center justify-center">
+                                <div class="relative w-64 h-64 border border-neon-green/20 rounded-full flex items-center justify-center bg-black/40">
+                                    <div class="absolute inset-0 border border-neon-green/10 rounded-full animate-radar"></div>
+                                    <div class="absolute inset-0 border border-neon-green/10 rounded-full animate-radar" style="animation-delay: 1.5s;"></div>
+                                    <div class="w-1.5 h-1.5 bg-neon-green rounded-full shadow-[0_0_15px_#0aff0a]"></div>
+                                    <div class="absolute top-1/2 left-1/2 w-[120px] h-[1px] bg-gradient-to-r from-neon-green/50 to-transparent origin-left animate-[spin_4s_linear_infinite]"></div>
+                                    
+                                    <div class="absolute bottom-4 font-mono text-[10px] text-neon-green/60">
+                                        SCANNING FREQUENCIES...
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Grid -->
+                            <div class="md:col-span-7">
+                                <p class="text-white/70 mb-8 font-mono text-base leading-relaxed border-l-2 border-neon-green/30 pl-4">
+                                    // WARNING: You are entering a restricted communication zone. All transmissions are encrypted. Establish a secure uplink below.
+                                </p>
+                                <div id="socials-container" class="grid grid-cols-2 gap-4">
+                                    <!-- JS GENERATED SOCIALS -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <footer class="text-white/30 text-xs font-mono mt-16 text-center">
+                            SECURE CONNECTION ESTABLISHED // ID: 994-A2<br>
+                            &copy; 2025 MOHAMMED AFROZ
+                        </footer>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MOBILE LOCK SCREEN -->
+    <div id="mobile-lock-screen" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4">
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-neon-blue/20 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <i data-lucide="lock" class="w-10 h-10 text-neon-blue"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white mb-2">DEVICE LOCKED</h1>
+            <p class="text-white/60 font-mono text-sm">This content is restricted on mobile devices.</p>
+            <p class="text-white/40 font-mono text-xs mt-2">Please access from a desktop for full experience.</p>
+        </div>
+
+        <div class="glass-card p-6 rounded-xl border border-neon-blue/30 max-w-sm w-full">
+            <div class="text-center">
+                <h3 class="text-lg font-bold text-neon-blue mb-4">ACCESS DENIED</h3>
+                <p class="text-white/70 text-sm mb-6">The intelligence dashboard requires a minimum screen width of 768px for optimal viewing.</p>
+                <div class="flex justify-center gap-4">
+                    <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse"></div>
+                    <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                    <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="admin-login-modal" class="fixed inset-0 z-[70] hidden bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-xl overflow-hidden border border-neon-purple/30 shadow-2xl p-8 flex flex-col items-center">
+            <div class="w-12 h-12 bg-neon-purple/10 rounded-full flex items-center justify-center mb-4">
+                <i data-lucide="lock" class="text-neon-purple w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">ADMIN AUTHENTICATION</h3>
+            <p class="text-xs text-white/40 font-mono mb-6 text-center">SECURE CLEARANCE REQUIRED</p>
+            
+            <input type="text" id="admin-username" class="w-full bg-black/50 border border-white/10 rounded px-4 py-3 text-sm text-white mb-3 focus:border-neon-purple outline-none" placeholder="USER ID">
+            <input type="password" id="admin-password" class="w-full bg-black/50 border border-white/10 rounded px-4 py-3 text-sm text-white mb-6 focus:border-neon-purple outline-none" placeholder="ACCESS CODE">
+            
+            <button onclick="checkAdminLogin()" class="w-full py-3 bg-neon-purple text-black font-bold rounded hover:bg-white transition-colors text-sm tracking-wider">VERIFY IDENTITY</button>
+            <button onclick="closeLoginModal()" class="mt-4 text-xs text-white/30 hover:text-white transition-colors">ABORT SEQUENCE</button>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL COMPONENTS -->
+    <button id="admin-toggle" class="fixed bottom-8 right-8 z-50 p-3 text-white/5 hover:text-white/50 transition-colors cursor-pointer group flex items-center justify-center gap-2">
+        <span class="absolute right-12 top-3 bg-neon-purple/90 text-black text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity font-mono pointer-events-none whitespace-nowrap font-bold">HR_ADMIN ACCESS</span>
+        <i data-lucide="lock" class="w-4 h-4 text-neon-purple/50 group-hover:text-neon-purple transition-colors"></i> 
+        <i data-lucide="terminal-square" class="w-6 h-6"></i>
+    </button>
+
+    <div id="admin-panel" class="fixed inset-0 z-[60] hidden bg-black/90 backdrop-blur-xl flex items-center justify-center">
+        <div class="glass-card w-full max-w-5xl h-[85vh] rounded-xl border border-neon-purple/30 shadow-[0_0_80px_rgba(188,19,254,0.15)] flex flex-col overflow-hidden" id="admin-content">
+            
+            <!-- Admin Header -->
+            <div class="px-8 py-5 border-b border-white/10 flex justify-between items-center bg-black/40">
+                <div class="flex items-center gap-3">
+                     <i data-lucide="shield-alert" class="text-neon-purple w-6 h-6"></i>
+                     <h2 class="text-xl font-bold font-mono text-neon-purple tracking-widest">SYSTEM_ADMIN_CONSOLE</h2>
+                </div>
+                <div class="flex gap-6">
+                    <span class="text-xs font-mono text-white/40 self-center" id="admin-unsaved-indicator">SYSTEM STATE: STABLE</span>
+                    <button id="close-admin" class="text-white/50 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+                </div>
+            </div>
+
+            <!-- Admin Body -->
+            <div class="flex flex-1 overflow-hidden">
+                <!-- Sidebar -->
+                <div class="w-64 border-r border-white/10 bg-white/5 p-6 flex flex-col gap-3">
+                    <button onclick="switchAdminTab('dashboard')" id="tab-dashboard" class="admin-tab text-left px-5 py-3 rounded text-sm font-mono hover:bg-white/5 text-white/60 transition-colors admin-tab-active">DASHBOARD</button>
+                    <button onclick="switchAdminTab('content')" id="tab-content" class="admin-tab text-left px-5 py-3 rounded text-sm font-mono hover:bg-white/5 text-white/60 transition-colors">CONTENT EDITOR</button>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="flex-1 overflow-y-auto p-10 relative">
+                    
+                    <!-- TAB: DASHBOARD -->
+                    <div id="view-dashboard" class="space-y-10">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-6">Global System Controls</h3>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="p-6 bg-white/5 rounded border border-white/10">
+                                    <label class="block text-xs font-mono text-white/50 mb-3">DEFAULT ACCESS MODE</label>
+                                    <select id="config-defaultAccess" onchange="updateSystemConfig('defaultAccess', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon-purple">
+                                        <option value="visitor">VISITOR (RESTRICTED)</option>
+                                        <option value="hr">HR (FULL ACCESS)</option>
+                                    </select>
+                                </div>
+                                <div class="p-6 bg-white/5 rounded border border-white/10">
+                                    <label class="block text-xs font-mono text-white/50 mb-3">RESUME ACCESS</label>
+                                    <select id="config-resumeEnabled" onchange="updateSystemConfig('resumeEnabled', this.value === 'true')" class="w-full bg-black/50 border border-white/10 rounded px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon-purple">
+                                        <option value="true">ENABLED</option>
+                                        <option value="false">DISABLED (LOCKED)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-2xl font-bold mb-6">Resume Configuration</h3>
+                            <div class="p-6 bg-white/5 rounded border border-white/10 space-y-6">
+                                <div>
+                                    <label class="block text-xs font-mono text-white/50 mb-3">RESUME FILE PATH / URL</label>
+                                    <input type="text" id="config-resumeUrl" onchange="updateSystemConfig('resumeUrl', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon-purple">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-mono text-white/50 mb-3">VERSION LABEL</label>
+                                    <input type="text" id="config-resumeVersion" onchange="updateSystemConfig('resumeVersion', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-4 py-3 text-sm font-mono text-white outline-none focus:border-neon-purple">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-2xl font-bold mb-6">System Logs</h3>
+                            <div class="h-48 bg-black/50 rounded border border-white/10 p-6 font-mono text-xs text-white/60 overflow-y-auto" id="admin-logs-container">
+                                <!-- Logs injected here -->
+                            </div>
+                        </div>
+                        
+                        <div class="pt-10 border-t border-white/10">
+                            <button onclick="resetSystemData()" class="px-6 py-3 border border-red-500/50 text-red-400 hover:bg-red-500/10 rounded text-xs font-mono">FACTORY RESET SYSTEM</button>
+                        </div>
+                    </div>
+
+                    <!-- TAB: CONTENT -->
+                    <div id="view-content" class="hidden space-y-8">
+                        <div class="flex justify-between items-center mb-8">
+                             <select id="content-selector" onchange="renderContentEditor(this.value)" class="bg-black/50 border border-white/20 rounded px-5 py-3 text-white font-mono outline-none focus:border-neon-purple w-full max-w-md">
+                                <option value="about">SECTION: ABOUT ME</option>
+                                <option value="experience">SECTION: EXPERIENCE</option>
+                                <option value="skills">SECTION: SKILLS</option>
+                                <option value="education">SECTION: EDUCATION</option>
+                                <option value="certifications">SECTION: CERTIFICATIONS</option>
+                                <option value="projects">SECTION: PROJECTS</option>
+                                <option value="future">SECTION: FUTURE</option>
+                                <option value="socials">SECTION: CONTACT (AREA 52)</option>
+                             </select>
+                        </div>
+                        
+                        <div id="content-editor-area">
+                            <!-- Dynamic Forms Loaded Here -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Admin Footer -->
+            <div class="px-8 py-5 border-t border-white/10 bg-black/40 flex justify-end gap-6">
+                <button onclick="discardChanges()" class="px-6 py-2 text-white/50 hover:text-white text-sm font-mono">DISCARD</button>
+                <button onclick="saveSystemData()" class="px-8 py-2 bg-neon-purple text-black font-bold rounded hover:bg-white transition-colors text-sm font-mono">SAVE SYSTEM STATE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TACTICAL BREAKDOWN MODAL (DEEP DIVE) -->
+    <div id="deep-dive-modal" class="fixed inset-0 z-[70] hidden bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-4xl rounded-2xl overflow-hidden border border-neon-blue/30 shadow-2xl">
+            <div class="bg-white/5 px-8 py-6 flex justify-between items-center border-b border-white/10">
+                <h3 class="font-mono text-neon-blue tracking-wider text-lg" id="dd-title">TACTICAL BREAKDOWN</h3>
+                <button onclick="closeDeepDive()" class="hover:text-neon-blue"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="p-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+                    <div>
+                        <span class="text-xs font-mono text-white/40 block mb-3">TARGET (PROBLEM)</span>
+                        <p class="text-base leading-relaxed" id="dd-problem">Loading data...</p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-mono text-white/40 block mb-3">PROTOCOL (ACTION)</span>
+                        <p class="text-base leading-relaxed" id="dd-action">Loading data...</p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-mono text-white/40 block mb-3">RESULT (OUTCOME)</span>
+                        <p class="text-base leading-relaxed text-neon-blue" id="dd-outcome">Loading data...</p>
+                    </div>
+                </div>
+                <div class="bg-black/40 p-6 rounded-lg border border-white/5 flex gap-6 font-mono text-sm text-white/60">
+                     <span>TOOLS USED:</span>
+                     <span id="dd-tools" class="text-white">Excel, Python, CRM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-24 right-8 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        // --- 1. DATA ARCHITECTURE ---
+        
+        const defaultData = {
+            config: {
+                defaultAccess: 'visitor',
+                resumeEnabled: true,
+                resumeUrl: '/assets/resume-2025_v4.pdf',
+                resumeVersion: 'v4.2'
+            },
+            logs: [
+                "System initialized...",
+                "Secure connection established.",
+                "Admin console ready."
+            ],
+            about: {
+                name: "Mohammed Afroz",
+                title: "OPERATIONS SPECIALIST",
+                headline: "Systematic <br><span class='text-white/40'>Growth.</span>",
+                text: "Mohammed Afroz is a results-driven operations and relationship management professional with over four years of experience. He specializes in turning operational chaos into scalable systems, focusing on efficiency, friction reduction, and customer satisfaction across post-sales and MIS roles.",
+                image: "" 
+            },
+            experience: [
+                {
+                    id: 1,
+                    role: "MIS / Post-Sales Ops",
+                    company: "Hunar Online Courses",
+                    period: "2023 - PRESENT",
+                    summary: "Workflow optimization and data-driven SOP implementation.",
+                    metrics: "30%",
+                    metricsLabel: "EFFICIENCY GAIN",
+                    details: {
+                        problem: "Manual reporting processes were consuming 15+ hours weekly, creating data latency.",
+                        action: "Implemented automated SOPs and consolidated data pipelines from multiple sources.",
+                        outcome: "Achieved 30% efficiency gain and real-time visibility for leadership.",
+                        tools: "Excel Advanced, SQL, SOP Design"
+                    }
+                },
+                {
+                    id: 2,
+                    role: "Relationship Manager",
+                    company: "Everest Fleet (Uber)",
+                    period: "PREVIOUS",
+                    summary: "Lifecycle management for 200+ partner network.",
+                    metrics: "95%",
+                    metricsLabel: "RETENTION RATE",
+                    details: {
+                        problem: "High churn rate among partner drivers due to lack of engagement structure.",
+                        action: "Deployed lifecycle management framework and proactive support channels.",
+                        outcome: "Stabilized retention at 95% across a network of 200+ partners.",
+                        tools: "CRM, Stakeholder Mgmt"
+                    }
+                },
+                {
+                    id: 3,
+                    role: "Team Lead",
+                    company: "Blinkit",
+                    period: "PREVIOUS",
+                    summary: "Cross-functional leadership to reduce delivery friction.",
+                    metrics: "15%",
+                    metricsLabel: "COST REDUCTION",
+                    details: {
+                         problem: "Last-mile delivery friction increasing operational costs.",
+                        action: "Led cross-functional squad to optimize routing and handover protocols.",
+                        outcome: "15% reduction in cost-per-delivery within 6 months.",
+                        tools: "Operations Analytics, Team Leadership"
+                    }
+                }
+            ],
+            skills: [
+                {
+                    id: 101,
+                    category: "OPERATIONS",
+                    icon: "settings",
+                    color: "text-neon-blue",
+                    items: ["Post-Sales Lifecycle", "Escalation Handling", "SOP Architecture", "Inventory Logic"],
+                    details: {
+                        problem: "Operational bottlenecks in post-sales processes causing delays.",
+                        action: "Designed comprehensive SOPs and automated escalation matrices.",
+                        outcome: "Reduced resolution time by 40% and improved CSAT scores.",
+                        tools: "Jira, Excel, Visio"
+                    }
+                },
+                {
+                    id: 102,
+                    category: "ANALYTICS",
+                    icon: "bar-chart-2",
+                    color: "text-neon-purple",
+                    items: ["Advanced Excel", "Power BI", "Google Analytics", "Python Basics"],
+                    details: {
+                        problem: "Data fragmentation across multiple platforms leading to poor visibility.",
+                        action: "Consolidated data sources into unified Power BI dashboards.",
+                        outcome: "Real-time tracking enabled for key performance indicators (KPIs).",
+                        tools: "Power BI, Excel, SQL"
+                    }
+                },
+                {
+                    id: 103,
+                    category: "LEADERSHIP",
+                    icon: "users",
+                    color: "text-white",
+                    items: ["Stakeholder Mgmt", "Cross-Functional", "Client Relations", "Process Optimization"],
+                    details: {
+                        problem: "Misalignment between cross-functional teams impacting project delivery.",
+                        action: "Implemented regular sync-ups and transparent communication channels.",
+                        outcome: "Improved team collaboration and accelerated project timelines.",
+                        tools: "Slack, Asana, Zoom"
+                    }
+                }
+            ],
+            education: [
+                { degree: "Bachelor of Commerce", institution: "Avinash College of Commerce", verified: true }
+            ],
+            certifications: [
+                { name: "Digital Marketing", org: "GOOGLE", icon: "award", link: "#" },
+                { name: "Basics of Python", org: "INFOSYS", icon: "code", link: "#" },
+                { name: "Excel Pro", org: "AVINASH CLG", icon: "table", link: "#" }
+            ],
+            projects: [
+                {
+                    title: "Automated MIS Dashboard",
+                    description: "Developed a centralized reporting system consolidating data from 4 sources. Reduced manual reporting time by 15 hours/week.",
+                    tags: ["POWER BI", "SQL"],
+                    metricVal: "-15hrs",
+                    metricLabel: "WEEKLY EFFORT",
+                    metricColor: "text-neon-green",
+                    link: "#"
+                },
+                {
+                    title: "Fleet Optimization Protocol",
+                    description: "Redesigned driver onboarding and inventory tracking SOPs. Increased asset utilization rate significantly within Q1.",
+                    tags: ["OPERATIONS", "EXCEL"],
+                    metricVal: "+22%",
+                    metricLabel: "ASSET UTILIZATION",
+                    metricColor: "text-neon-blue",
+                    link: "#"
+                }
+            ],
+            future: {
+                text: "Focused on growing into senior operations, analytics, or business systems roles where data strategy, process ownership, and leadership intersect. <br><br> <span class='text-white font-medium'>Goal: Build scalable operational intelligence systems that support business growth and customer trust.</span>"
+            },
+            socials: [
+                { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin" },
+                { platform: "GitHub", url: "https://github.com", icon: "github" },
+                { platform: "Email", url: "mailto:hello@example.com", icon: "mail" },
+                { platform: "Twitter", url: "https://twitter.com", icon: "twitter" }
+            ]
+        };
+
+        // Initialize State
+        let systemData = JSON.parse(localStorage.getItem('afrozSystemData')) || defaultData;
+        let state = {
+            accessType: null,
+            adminMode: false,
+            unsavedChanges: false,
+            adminAuthenticated: false // New state variable
+        };
+
+        // --- 2. RENDER ENGINE ---
+
+        // Animation Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if(entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('reveal-visible');
+                        entry.target.classList.remove('reveal-hidden');
+                    }, index * 100);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // Auto Typewriter for About Section
+        function initTypewriter(elementId, text, speed = 10) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            element.innerHTML = '';
+            element.classList.add('typing-cursor');
+            
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.classList.remove('typing-cursor');
+                }
+            }
+            type();
+        }
+
+        function renderSystem() {
+            // About
+            document.getElementById('profile-name').innerText = `Subject: ${systemData.about.name}`;
+            document.getElementById('profile-title').innerText = systemData.about.title;
+            document.getElementById('about-headline').innerHTML = systemData.about.headline;
+            
+            const aboutTextEl = document.getElementById('about-text');
+            if(aboutTextEl.innerText.length < 5) { 
+                 initTypewriter('about-text', systemData.about.text);
+            } else {
+                 aboutTextEl.innerText = systemData.about.text; 
+            }
+
+            // Profile Image Handling
+            const imgContainer = document.getElementById('profile-img-container');
+            if (systemData.about.image && systemData.about.image.trim() !== "") {
+                imgContainer.innerHTML = `<img src="${systemData.about.image}" class="w-full h-full object-cover" alt="Profile">`;
+            } else {
+                imgContainer.innerHTML = `<i data-lucide="user" class="w-40 h-40 text-white/10"></i>`;
+            }
+
+            // Experience Timeline
+            const expContainer = document.getElementById('experience-container');
+            expContainer.innerHTML = systemData.experience.map((job, idx) => {
+                const isCurrent = job.period.includes('PRESENT');
+                const nodeClass = isCurrent ? 'bg-neon-green shadow-[0_0_10px_#0aff0a] animate-pulse' : 'bg-white/20';
+                const statusBadge = isCurrent ? `<div class="absolute top-4 right-4 px-2 py-0.5 bg-neon-green/10 border border-neon-green text-[10px] text-neon-green font-bold rounded tracking-wider animate-pulse">LIVE NODE</div>` : '';
+                
+                return `
+                <div class="relative group" onclick="openDeepDive(${job.id}, 'experience')">
+                    <!-- Timeline Node -->
+                    <div class="absolute -top-[22px] left-8 w-4 h-4 rounded-full border-2 border-black ${nodeClass} z-20"></div>
+                    <div class="absolute -top-[14px] left-10 w-[2px] h-8 bg-white/20 group-hover:bg-neon-blue transition-colors z-0"></div>
+
+                    <div class="glass-card min-w-[400px] p-8 rounded-xl cursor-pointer hover:bg-white/5 relative snap-center reveal-hidden mt-6 border-l-2 ${isCurrent ? 'border-l-neon-green' : 'border-l-transparent'}">
+                        ${statusBadge}
+                        <span class="text-xs font-mono text-white/40 mb-3 block tracking-widest">${job.period}</span>
+                        <h3 class="text-2xl font-bold mb-1">${job.role}</h3>
+                        <p class="text-sm text-neon-blue mb-4 font-mono">${job.company}</p>
+                        <p class="text-sm text-white/70 mb-6 leading-relaxed">${job.summary}</p>
+                        <div class="border-t border-white/10 pt-4 flex justify-between items-end">
+                            <div>
+                                <div class="text-4xl font-bold text-white sensitive-data mb-1">${job.metrics}</div>
+                                <div class="text-[10px] font-mono text-white/40 tracking-wider">${job.metricsLabel}</div>
+                            </div>
+                            <div class="p-2 rounded-full bg-white/5 group-hover:bg-neon-blue group-hover:text-black transition-colors">
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+
+            // Skills
+            const skillsContainer = document.getElementById('skills-container');
+            // Change class to horizontal layout
+            skillsContainer.className = "flex gap-8 overflow-x-auto pb-10 inner-scroll snap-x pt-4 pl-4";
+            skillsContainer.innerHTML = systemData.skills.map(skillGroup => `
+                <div class="glass-card min-w-[350px] p-10 rounded-2xl relative overflow-hidden group hover:border-white/40 reveal-hidden snap-center cursor-pointer" onclick="openDeepDive(${skillGroup.id}, 'skills')">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors"></div>
+                    <h3 class="text-2xl font-bold mb-8 flex items-center gap-4 ${skillGroup.color}">
+                        <i data-lucide="${skillGroup.icon}" class="w-7 h-7"></i> ${skillGroup.category}
+                    </h3>
+                    <ul class="space-y-5 text-lg text-white/70 font-mono">
+                        ${skillGroup.items.map(item => `
+                            <li class="flex justify-between border-b border-white/5 pb-3"><span>${item}</span></li>
+                        `).join('')}
+                    </ul>
+                     <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="p-2 rounded-full bg-white/5 hover:bg-neon-blue hover:text-black transition-colors">
+                            <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Education
+            const eduContainer = document.getElementById('education-container');
+            eduContainer.innerHTML = systemData.education.map(edu => `
+                <div class="glass-card p-10 rounded-r-xl mb-6 reveal-hidden">
+                    <h3 class="text-2xl font-bold">${edu.degree}</h3>
+                    <p class="text-white/60 mt-2 font-mono text-lg">${edu.institution}</p>
+                    ${edu.verified ? `
+                    <div class="mt-6 inline-flex items-center gap-3 px-4 py-2 bg-neon-blue/10 rounded-full border border-neon-blue/20">
+                        <div class="w-2 h-2 bg-neon-blue rounded-full"></div>
+                        <span class="text-xs font-bold text-neon-blue tracking-wider">VERIFIED DEGREE</span>
+                    </div>` : ''}
+                </div>
+            `).join('');
+
+            // Certs
+            const certsContainer = document.getElementById('certs-container');
+            certsContainer.innerHTML = systemData.certifications.map(cert => `
+                <div class="glass-panel p-8 rounded-xl flex items-center justify-between group hover:bg-white/5 transition-colors reveal-hidden">
+                    <div class="flex items-center gap-6">
+                        <div class="p-3 bg-white/5 rounded-lg">
+                            <i data-lucide="${cert.icon}" class="w-8 h-8 text-neon-blue"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xl mb-1">${cert.name}</h4>
+                            <p class="text-base text-white/40 font-mono">${cert.org}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                         <a href="${cert.link}" target="_blank" class="p-3 hover:bg-white/10 rounded-full transition-colors text-white/50 hover:text-white" title="View Certificate">
+                            <i data-lucide="eye" class="w-6 h-6"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+
+            // Projects
+            const projectsContainer = document.getElementById('projects-container');
+            // Changed to horizontal scrolling layout
+            projectsContainer.className = "flex gap-8 overflow-x-auto pb-12 pt-4 inner-scroll snap-x pl-4";
+            projectsContainer.innerHTML = systemData.projects.map(proj => `
+                <div class="glass-card min-w-[450px] p-10 rounded-2xl overflow-hidden group hover:bg-white/5 relative snap-center reveal-hidden border-t border-white/10">
+                    <div class="flex flex-col gap-6 h-full justify-between">
+                         <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-3xl font-bold">${proj.title}</h3>
+                                 <a href="${proj.link}" target="_blank" class="p-3 bg-white/5 hover:bg-neon-blue/20 rounded-full transition-colors text-white/50 hover:text-neon-blue border border-white/10" title="View Project">
+                                    <i data-lucide="eye" class="w-6 h-6"></i>
+                                </a>
+                            </div>
+                            <p class="text-white/70 text-base leading-relaxed mb-4">${proj.description}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${proj.tags.map(tag => `<span class="px-3 py-1 bg-white/5 rounded-md text-[10px] font-mono border border-white/10 tracking-wide">${tag}</span>`).join('')}
+                            </div>
+                         </div>
+                         <div class="bg-black/40 rounded-xl p-4 text-center mt-auto">
+                            <div class="text-4xl font-bold ${proj.metricColor} sensitive-data mb-1">${proj.metricVal}</div>
+                            <div class="text-[10px] font-mono text-white/40 tracking-widest">${proj.metricLabel}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Future
+            document.getElementById('future-text').innerHTML = systemData.future.text;
+            
+            // Socials (Area 52)
+            const socialsContainer = document.getElementById('socials-container');
+            socialsContainer.innerHTML = systemData.socials.map(social => `
+                <a href="${social.url}" target="_blank" class="glass-panel p-10 rounded area-52-border flex flex-col items-center justify-center gap-4 hover:bg-neon-green/5 transition-all group reveal-hidden">
+                    <i data-lucide="${social.icon}" class="w-12 h-12 text-neon-green group-hover:scale-110 transition-transform"></i>
+                    <span class="font-mono text-base text-neon-green/70 tracking-widest">${social.platform}</span>
+                </a>
+            `).join('');
+
+            if (systemData.config.resumeEnabled && state.accessType === 'hr') {
+                document.getElementById('resume-container').style.display = 'block';
+                document.getElementById('resume-locked').style.display = 'none';
+                document.getElementById('resume-btn').href = systemData.config.resumeUrl;
+            } else {
+                document.getElementById('resume-container').style.display = 'none';
+                document.getElementById('resume-locked').style.display = 'flex';
+                document.getElementById('resume-locked').classList.remove('hidden');
+            }
+
+            lucide.createIcons();
+            
+            // Trigger animations
+            document.querySelectorAll('.reveal-hidden').forEach(el => observer.observe(el));
+        }
+
+        // --- 3. SYSTEM LOGIC ---
+
+        function initSystem(type) {
+            state.accessType = type;
+            const entryScreen = document.getElementById('entry-screen');
+            const loadingScreen = document.getElementById('loading-screen');
+            
+            entryScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                entryScreen.style.display = 'none';
+                loadingScreen.style.display = 'flex';
+                loadingScreen.classList.remove('hidden');
+                runLoadingSequence();
+            }, 800);
+        }
+
+        function runLoadingSequence() {
+            // Simplified loading sequence for better UX flow in this demo
+            const loaderBar = document.getElementById('loader-bar');
+            const consoleOutput = document.getElementById('console-output');
+            
+            let progress = 0;
+            const logs = defaultData.logs; // use default logs for boot
+            
+            let interval = setInterval(() => {
+                progress += 10;
+                loaderBar.style.width = `${progress}%`;
+                document.getElementById('loader-percent').innerText = `${progress}%`;
+                
+                if (progress % 20 === 0) {
+                     const p = document.createElement('p');
+                     p.innerHTML = `> ${logs[Math.floor(Math.random() * logs.length)]}`;
+                     p.className = 'typewriter text-xs text-white/50';
+                     consoleOutput.appendChild(p);
+                     consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                }
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    finishLoading();
+                }
+            }, 150);
+        }
+
+        function finishLoading() {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('opacity-0');
+                setTimeout(() => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('main-interface').classList.remove('opacity-0');
+                    applyAccessRules();
+                }, 1000);
+            }, 500);
+        }
+
+        function applyAccessRules() {
+            renderSystem(); // Render content first
+            
+            const body = document.body;
+            const statusDisplay = document.getElementById('access-level-display');
+
+            if(state.accessType === 'visitor') {
+                body.classList.add('visitor-view');
+                statusDisplay.innerText = "VISITOR_RESTRICTED";
+                statusDisplay.classList.replace('text-neon-blue', 'text-orange-500');
+            } else {
+                statusDisplay.innerText = "HR_CLEARANCE";
+            }
+        }
+
+        // --- 4. ADMIN PANEL LOGIC ---
+
+        const adminToggle = document.getElementById('admin-toggle');
+        const adminPanel = document.getElementById('admin-panel');
+        const adminContent = document.getElementById('admin-content');
+        const closeAdmin = document.getElementById('close-admin');
+        const loginModal = document.getElementById('admin-login-modal');
+
+        adminToggle.addEventListener('click', () => {
+            if(state.accessType === 'visitor') {
+                showToast('SECURITY WARNING: UNAUTHORIZED ADMIN ACCESS', 'error');
+                return;
+            }
+            if (state.adminAuthenticated) {
+                adminPanel.classList.remove('hidden');
+                loadAdminDashboard();
+            } else {
+                loginModal.classList.remove('hidden');
+            }
+        });
+
+        function checkAdminLogin() {
+            const user = document.getElementById('admin-username').value;
+            const pass = document.getElementById('admin-password').value;
+
+            if (user === "Admin" && pass === "Rumana@123") {
+                state.adminAuthenticated = true;
+                loginModal.classList.add('hidden');
+                adminPanel.classList.remove('hidden');
+                loadAdminDashboard();
+                showToast('IDENTITY CONFIRMED. WELCOME, COMMANDER.', 'success');
+                // Clear fields for security
+                document.getElementById('admin-username').value = "";
+                document.getElementById('admin-password').value = "";
+            } else {
+                showToast('ACCESS DENIED: INVALID CREDENTIALS', 'error');
+            }
+        }
+
+        function closeLoginModal() {
+            loginModal.classList.add('hidden');
+        }
+
+        closeAdmin.addEventListener('click', () => {
+            adminPanel.classList.add('hidden');
+        });
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('admin-tab-active'));
+            document.getElementById(`tab-${tab}`).classList.add('admin-tab-active');
+            
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-content').classList.add('hidden');
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            
+            if (tab === 'content') renderContentEditor('about'); // Default load
+        }
+
+        function loadAdminDashboard() {
+            document.getElementById('config-defaultAccess').value = systemData.config.defaultAccess;
+            document.getElementById('config-resumeEnabled').value = systemData.config.resumeEnabled.toString();
+            document.getElementById('config-resumeUrl').value = systemData.config.resumeUrl;
+            document.getElementById('config-resumeVersion').value = systemData.config.resumeVersion;
+
+            const logsContainer = document.getElementById('admin-logs-container');
+            logsContainer.innerHTML = systemData.logs.map(log => `<div>> ${log}</div>`).join('');
+        }
+
+        function updateSystemConfig(key, value) {
+            systemData.config[key] = value;
+            markUnsaved();
+        }
+
+        function renderContentEditor(section) {
+            const container = document.getElementById('content-editor-area');
+            container.innerHTML = ''; // Clear
+
+            if (section === 'about') {
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <input type="text" value="${systemData.about.name}" onchange="updateDataPath('about.name', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-white" placeholder="Name">
+                        <input type="text" value="${systemData.about.title}" onchange="updateDataPath('about.title', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-white" placeholder="Title">
+                        <input type="text" value="${systemData.about.image || ''}" onchange="updateDataPath('about.image', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-neon-blue font-mono" placeholder="Profile Photo URL (optional)">
+                        <textarea onchange="updateDataPath('about.headline', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-white h-24" placeholder="Headline (HTML allowed)">${systemData.about.headline}</textarea>
+                        <textarea onchange="updateDataPath('about.text', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-white h-32" placeholder="About Text">${systemData.about.text}</textarea>
+                    </div>
+                `;
+            } else if (section === 'experience') {
+                container.innerHTML = `
+                    <div class="space-y-6">
+                        ${systemData.experience.map((job, idx) => `
+                            <div class="p-4 bg-white/5 rounded border border-white/10 relative">
+                                <h4 class="font-bold mb-2 text-neon-blue">${job.company}</h4>
+                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                    <input type="text" value="${job.role}" onchange="updateArrayItem('experience', ${idx}, 'role', this.value)" class="bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white">
+                                    <input type="text" value="${job.period}" onchange="updateArrayItem('experience', ${idx}, 'period', this.value)" class="bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white">
+                                </div>
+                                <textarea onchange="updateArrayItem('experience', ${idx}, 'summary', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white h-16 mb-2">${job.summary}</textarea>
+                                
+                                <div class="mt-4 pt-4 border-t border-white/10 space-y-2">
+                                    <p class="text-xs text-neon-purple font-mono mb-2">TACTICAL BREAKDOWN (DEEP DIVE)</p>
+                                    <input type="text" value="${job.details.problem || ''}" onchange="updateExperienceDetail(${idx}, 'problem', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white" placeholder="Target / Problem">
+                                    <textarea onchange="updateExperienceDetail(${idx}, 'action', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white h-12" placeholder="Protocol / Action">${job.details.action || ''}</textarea>
+                                    <textarea onchange="updateExperienceDetail(${idx}, 'outcome', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white h-12" placeholder="Result / Outcome">${job.details.outcome || ''}</textarea>
+                                    <input type="text" value="${job.details.tools || ''}" onchange="updateExperienceDetail(${idx}, 'tools', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white" placeholder="Tools Used">
+                                </div>
+
+                                <button onclick="deleteArrayItem('experience', ${idx})" class="text-red-400 text-xs hover:text-red-300 mt-2">DELETE ENTRY</button>
+                            </div>
+                        `).join('')}
+                        <button onclick="addExperience()" class="w-full py-2 border border-dashed border-white/20 rounded text-xs text-white/50 hover:bg-white/5">+ ADD JOB POSITION</button>
+                    </div>
+                `;
+            } else if (section === 'skills') {
+                container.innerHTML = `
+                    <div class="space-y-6">
+                        ${systemData.skills.map((group, gIdx) => `
+                             <div class="p-4 bg-white/5 rounded border border-white/10 relative">
+                    <div class="mb-2 space-y-2">
+                        <div class="flex justify-between">
+                            <input type="text" value="${group.category}" onchange="updateArrayItem('skills', ${gIdx}, 'category', this.value)" class="bg-black/50 border border-white/10 rounded px-2 py-1 text-sm font-bold text-neon-blue">
+                            <input type="text" value="${group.icon}" onchange="updateArrayItem('skills', ${gIdx}, 'icon', this.value)" class="bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white/50 w-24" placeholder="Icon Name">
+                        </div>
+                        <input type="text" value="${group.color}" onchange="updateArrayItem('skills', ${gIdx}, 'color', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white" placeholder="Color Class (e.g. text-neon-blue)">
+                    </div>
+                                <div class="space-y-2 pl-4 border-l border-white/10 mb-2">
+                                    ${group.items.map((item, iIdx) => `
+                                        <div class="flex gap-2">
+                                             <input type="text" value="${item}" onchange="updateNestedArray('skills', ${gIdx}, 'items', ${iIdx}, this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white">
+                                             <button onclick="deleteNestedItem('skills', ${gIdx}, 'items', ${iIdx})" class="text-white/30 hover:text-red-400 px-2">x</button>
+                                        </div>
+                                    `).join('')}
+                                    <button onclick="addNestedItem('skills', ${gIdx}, 'items', 'New Skill')" class="text-xs text-neon-green hover:underline">+ Add Skill</button>
+                                </div>
+                                
+                                <div class="mt-4 pt-4 border-t border-white/10 space-y-2">
+                                    <p class="text-xs text-neon-purple font-mono mb-2">TACTICAL BREAKDOWN (DEEP DIVE)</p>
+                                    <input type="text" value="${group.details.problem || ''}" onchange="updateSkillDetail(${gIdx}, 'problem', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white" placeholder="Target / Problem">
+                                    <textarea onchange="updateSkillDetail(${gIdx}, 'action', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white h-12" placeholder="Protocol / Action">${group.details.action || ''}</textarea>
+                                    <textarea onchange="updateSkillDetail(${gIdx}, 'outcome', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white h-12" placeholder="Result / Outcome">${group.details.outcome || ''}</textarea>
+                                    <input type="text" value="${group.details.tools || ''}" onchange="updateSkillDetail(${gIdx}, 'tools', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white" placeholder="Tools Used">
+                                </div>
+                                
+                                <button onclick="deleteArrayItem('skills', ${gIdx})" class="text-red-400 text-xs hover:text-red-300 mt-2">DELETE CATEGORY</button>
+                             </div>
+                        `).join('')}
+                        <button onclick="addSkillGroup()" class="w-full py-2 border border-dashed border-white/20 rounded text-xs text-white/50 hover:bg-white/5">+ ADD SKILL CATEGORY</button>
+                    </div>
+                `;
+            } else if (section === 'education') {
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        ${systemData.education.map((edu, idx) => `
+                             <div class="p-4 bg-white/5 rounded border border-white/10 relative">
+                                <input type="text" value="${edu.degree}" onchange="updateArrayItem('education', ${idx}, 'degree', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white font-bold mb-2">
+                                <input type="text" value="${edu.institution}" onchange="updateArrayItem('education', ${idx}, 'institution', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white mb-2">
+                                <label class="flex items-center gap-2 text-xs text-white/60">
+                                    <input type="checkbox" ${edu.verified ? 'checked' : ''} onchange="updateArrayItem('education', ${idx}, 'verified', this.checked)"> Verified Degree
+                                </label>
+                                <button onclick="deleteArrayItem('education', ${idx})" class="absolute top-2 right-2 text-red-400 text-xs hover:text-red-300">DELETE</button>
+                             </div>
+                        `).join('')}
+                        <button onclick="addEducation()" class="w-full py-2 border border-dashed border-white/20 rounded text-xs text-white/50 hover:bg-white/5">+ ADD EDUCATION</button>
+                    </div>
+                `;
+            } else if (section === 'certifications') {
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        ${systemData.certifications.map((cert, idx) => `
+                             <div class="p-4 bg-white/5 rounded border border-white/10 relative flex flex-col gap-2">
+                                <div class="flex gap-4 items-center">
+                                    <div class="flex-1 space-y-2">
+                                        <input type="text" value="${cert.name}" onchange="updateArrayItem('certifications', ${idx}, 'name', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white font-bold" placeholder="Cert Name">
+                                        <input type="text" value="${cert.org}" onchange="updateArrayItem('certifications', ${idx}, 'org', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white" placeholder="Organization">
+                                    </div>
+                                    <button onclick="deleteArrayItem('certifications', ${idx})" class="text-red-400 text-xs hover:text-red-300">DELETE</button>
+                                </div>
+                                <input type="text" value="${cert.link}" onchange="updateArrayItem('certifications', ${idx}, 'link', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-neon-blue font-mono" placeholder="Certificate URL (Link)">
+                             </div>
+                        `).join('')}
+                        <button onclick="addCertification()" class="w-full py-2 border border-dashed border-white/20 rounded text-xs text-white/50 hover:bg-white/5">+ ADD CERTIFICATION</button>
+                    </div>
+                `;
+            } else if (section === 'projects') {
+                container.innerHTML = `
+                    <div class="space-y-6">
+                        ${systemData.projects.map((proj, idx) => `
+                            <div class="p-4 bg-white/5 rounded border border-white/10 relative">
+                                <h4 class="font-bold mb-2 text-neon-blue">PROJECT ${idx + 1}</h4>
+                                <input type="text" value="${proj.title}" onchange="updateArrayItem('projects', ${idx}, 'title', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white mb-2" placeholder="Project Title">
+                                <input type="text" value="${proj.link}" onchange="updateArrayItem('projects', ${idx}, 'link', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-neon-blue font-mono mb-2" placeholder="Project URL (Link)">
+                                <textarea onchange="updateArrayItem('projects', ${idx}, 'description', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white h-16 mb-2" placeholder="Description">${proj.description}</textarea>
+                                
+                                <div class="grid grid-cols-3 gap-2 mb-2">
+                                    <input type="text" value="${proj.metricVal}" onchange="updateArrayItem('projects', ${idx}, 'metricVal', this.value)" class="bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white" placeholder="Metric Value (e.g. +20%)">
+                                    <input type="text" value="${proj.metricLabel}" onchange="updateArrayItem('projects', ${idx}, 'metricLabel', this.value)" class="bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white" placeholder="Metric Label">
+                                    <select onchange="updateArrayItem('projects', ${idx}, 'metricColor', this.value)" class="bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white">
+                                        <option value="text-neon-blue" ${proj.metricColor === 'text-neon-blue' ? 'selected' : ''}>Blue</option>
+                                        <option value="text-neon-purple" ${proj.metricColor === 'text-neon-purple' ? 'selected' : ''}>Purple</option>
+                                        <option value="text-neon-green" ${proj.metricColor === 'text-neon-green' ? 'selected' : ''}>Green</option>
+                                        <option value="text-neon-red" ${proj.metricColor === 'text-neon-red' ? 'selected' : ''}>Red</option>
+                                    </select>
+                                </div>
+
+                                <label class="block text-xs text-white/50 mb-1">TAGS (Comma separated)</label>
+                                <input type="text" value="${proj.tags.join(', ')}" onchange="updateProjectTags(${idx}, this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white mb-2" placeholder="Tag 1, Tag 2">
+
+                                <button onclick="deleteArrayItem('projects', ${idx})" class="text-red-400 text-xs hover:text-red-300">DELETE PROJECT</button>
+                            </div>
+                        `).join('')}
+                        <button onclick="addProject()" class="w-full py-2 border border-dashed border-white/20 rounded text-xs text-white/50 hover:bg-white/5">+ ADD NEW PROJECT</button>
+                    </div>
+                `;
+            } else if (section === 'future') {
+                 container.innerHTML = `
+                    <textarea onchange="updateDataPath('future.text', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-white h-48" placeholder="Future Text">${systemData.future.text}</textarea>
+                `;
+            } else if (section === 'socials') {
+                 container.innerHTML = `
+                    <div class="space-y-4">
+                        ${systemData.socials.map((social, idx) => `
+                             <div class="p-4 bg-white/5 rounded border border-neon-green/30 relative flex flex-col gap-2">
+                                <div class="flex gap-4 items-center">
+                                    <div class="flex-1 space-y-2">
+                                        <input type="text" value="${social.platform}" onchange="updateArrayItem('socials', ${idx}, 'platform', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white font-bold" placeholder="Platform Name">
+                                        <input type="text" value="${social.url}" onchange="updateArrayItem('socials', ${idx}, 'url', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-neon-green font-mono" placeholder="Link URL">
+                                        <input type="text" value="${social.icon}" onchange="updateArrayItem('socials', ${idx}, 'icon', this.value)" class="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white/50" placeholder="Icon Name">
+                                    </div>
+                                    <button onclick="deleteArrayItem('socials', ${idx})" class="text-red-400 text-xs hover:text-red-300">DELETE</button>
+                                </div>
+                             </div>
+                        `).join('')}
+                        <button onclick="addSocial()" class="w-full py-2 border border-dashed border-neon-green/30 text-neon-green rounded text-xs hover:bg-neon-green/10">+ ADD SECURE CHANNEL</button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<div class="p-4 text-center text-white/40">Editor for ${section} not fully expanded in this demo version.</div>`;
+            }
+        }
+
+        // --- 5. DATA HELPERS ---
+
+        function updateDataPath(path, value) {
+            const keys = path.split('.');
+            let obj = systemData;
+            for (let i = 0; i < keys.length - 1; i++) {
+                obj = obj[keys[i]];
+            }
+            obj[keys[keys.length - 1]] = value;
+            markUnsaved();
+        }
+
+        function updateArrayItem(collection, index, key, value) {
+            systemData[collection][index][key] = value;
+            markUnsaved();
+        }
+
+        function updateExperienceDetail(index, key, value) {
+            if(!systemData.experience[index].details) systemData.experience[index].details = {};
+            systemData.experience[index].details[key] = value;
+            markUnsaved();
+        }
+        
+        function updateSkillDetail(index, key, value) {
+            if(!systemData.skills[index].details) systemData.skills[index].details = {};
+            systemData.skills[index].details[key] = value;
+            markUnsaved();
+        }
+
+        function deleteArrayItem(collection, index) {
+            systemData[collection].splice(index, 1);
+            markUnsaved();
+            renderContentEditor(document.getElementById('content-selector').value);
+        }
+
+        // Nested Array Helper (for Skills items)
+        function updateNestedArray(collection, parentIndex, childKey, childIndex, value) {
+            systemData[collection][parentIndex][childKey][childIndex] = value;
+            markUnsaved();
+        }
+        
+        function addNestedItem(collection, parentIndex, childKey, defaultValue) {
+            systemData[collection][parentIndex][childKey].push(defaultValue);
+            markUnsaved();
+            const currentSection = document.getElementById('content-selector').value;
+            renderContentEditor(currentSection);
+        }
+
+        function deleteNestedItem(collection, parentIndex, childKey, childIndex) {
+            systemData[collection][parentIndex][childKey].splice(childIndex, 1);
+            markUnsaved();
+            const currentSection = document.getElementById('content-selector').value;
+            renderContentEditor(currentSection);
+        }
+
+        // Project Tags Helper
+        function updateProjectTags(index, valueString) {
+            const tags = valueString.split(',').map(t => t.trim()).filter(t => t.length > 0);
+            systemData.projects[index].tags = tags;
+            markUnsaved();
+        }
+
+        // Add Item Functions
+        function addExperience() {
+            systemData.experience.push({
+                id: Date.now(),
+                role: "New Role",
+                company: "Company Name",
+                period: "YEAR - YEAR",
+                summary: "Description of role...",
+                metrics: "0%",
+                metricsLabel: "METRIC LABEL",
+                details: { problem: "", action: "", outcome: "", tools: "" }
+            });
+            markUnsaved();
+            renderContentEditor('experience');
+        }
+
+        function addProject() {
+            systemData.projects.push({
+                title: "New Project",
+                description: "Project description...",
+                tags: ["TAG 1", "TAG 2"],
+                metricVal: "+0%",
+                metricLabel: "METRIC",
+                metricColor: "text-neon-blue",
+                link: "#"
+            });
+            markUnsaved();
+            renderContentEditor('projects');
+        }
+
+        function addSkillGroup() {
+            systemData.skills.push({
+                id: Date.now(),
+                category: "NEW CATEGORY",
+                icon: "circle",
+                color: "text-white",
+                items: ["Skill 1"],
+                details: { problem: "", action: "", outcome: "", tools: "" }
+            });
+            markUnsaved();
+            renderContentEditor('skills');
+        }
+
+        function addEducation() {
+            systemData.education.push({ degree: "Degree Name", institution: "Institution Name", verified: false });
+            markUnsaved();
+            renderContentEditor('education');
+        }
+
+        function addCertification() {
+            systemData.certifications.push({ name: "Certificate Name", org: "Organization", icon: "award", link: "#" });
+            markUnsaved();
+            renderContentEditor('certifications');
+        }
+        
+        function addSocial() {
+            systemData.socials.push({ platform: "New Platform", url: "#", icon: "link" });
+            markUnsaved();
+            renderContentEditor('socials');
+        }
+
+function markUnsaved() {
+    state.unsavedChanges = true;
+    document.getElementById('admin-unsaved-indicator').innerText = "SYSTEM STATE: UNSAVED CHANGES";
+    document.getElementById('admin-unsaved-indicator').classList.add('text-neon-purple');
+    renderSystem();
+}
+
+        function saveSystemData() {
+            // Update logs
+            systemData.logs.push(`System update saved at ${new Date().toLocaleTimeString()}`);
+            
+            // Persist
+            localStorage.setItem('afrozSystemData', JSON.stringify(systemData));
+            
+            // UI Feedback
+            state.unsavedChanges = false;
+            document.getElementById('admin-unsaved-indicator').innerText = "SYSTEM STATE: STABLE";
+            document.getElementById('admin-unsaved-indicator').classList.remove('text-neon-purple');
+            showToast('SYSTEM STATE SAVED SUCCESSFULLY', 'success');
+            
+            // Re-render
+            renderSystem();
+            loadAdminDashboard(); // Refresh logs
+        }
+
+        function discardChanges() {
+            if(confirm("Discard all unsaved changes and reload system?")) {
+                systemData = JSON.parse(localStorage.getItem('afrozSystemData')) || defaultData;
+                state.unsavedChanges = false;
+                renderSystem();
+                loadAdminDashboard();
+                renderContentEditor(document.getElementById('content-selector').value);
+                showToast('CHANGES DISCARDED');
+            }
+        }
+
+        function resetSystemData() {
+            if(confirm("FACTORY RESET: This will wipe all saved data and restore defaults. Proceed?")) {
+                localStorage.removeItem('afrozSystemData');
+                location.reload();
+            }
+        }
+
+        // --- 6. UTILITIES ---
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-red-900/80 border-red-500' : (type === 'success' ? 'bg-neon-green/20 border-neon-green' : 'bg-neon-blue/20 border-neon-blue');
+            toast.className = `toast-enter p-4 rounded backdrop-blur border ${bgClass} font-mono text-xs text-white shadow-xl max-w-xs`;
+            toast.innerHTML = `<div class="flex items-center gap-2">${message}</div>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // Deep Dive Logic (unchanged from original but connected to ID)
+        function openDeepDive(id, type) {
+            const collection = systemData[type];
+            const item = collection.find(j => j.id === id);
+            if (!item || !item.details) return;
+            
+            document.getElementById('dd-title').innerText = type === 'skills' ? "CAPABILITY BREAKDOWN" : "TACTICAL BREAKDOWN";
+            document.getElementById('dd-problem').innerText = item.details.problem || "N/A";
+            document.getElementById('dd-action').innerText = item.details.action || "N/A";
+            document.getElementById('dd-outcome').innerText = item.details.outcome || "N/A";
+            document.getElementById('dd-tools').innerText = item.details.tools || "N/A";
+            document.getElementById('deep-dive-modal').classList.remove('hidden');
+        }
+        function closeDeepDive() { document.getElementById('deep-dive-modal').classList.add('hidden'); }
+
+        // Horizontal Scroll Logic
+        const scrollContainer = document.getElementById('scroll-container');
+        
+        // 2. Mouse Wheel Horizontal Scrolling
+        scrollContainer.addEventListener('wheel', (evt) => {
+            if (window.innerWidth > 768) {
+                evt.preventDefault();
+                // Applied multiplier for better responsiveness
+                scrollContainer.scrollLeft += evt.deltaY * 1.5;
+            }
+        }, { passive: false }); // Disable passive to allow preventDefault
+
+        // 1. Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (window.innerWidth <= 768) return; // Allow normal behavior on mobile
+            
+            const scrollAmount = window.innerWidth * 0.9; // 90% viewport jump
+            
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                scrollContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            }
+        });
+
+        function scrollToSection(index) {
+            scrollContainer.scrollTo({ left: window.innerWidth * index, behavior: 'smooth' });
+        }
+
+        // Mobile Lock Screen Logic
+        function checkMobileLock() {
+            const lockScreen = document.getElementById('mobile-lock-screen');
+            const mainInterface = document.getElementById('main-interface');
+            const entryScreen = document.getElementById('entry-screen');
+            const loadingScreen = document.getElementById('loading-screen');
+
+            if (window.innerWidth < 768) {
+                // Hide main content and show lock screen
+                mainInterface.classList.add('hidden');
+                entryScreen.classList.add('hidden');
+                loadingScreen.classList.add('hidden');
+                lockScreen.classList.remove('hidden');
+            } else {
+                // Show main content and hide lock screen
+                lockScreen.classList.add('hidden');
+                if (state.accessType) {
+                    mainInterface.classList.remove('hidden');
+                } else {
+                    entryScreen.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Check on load and resize
+        window.addEventListener('load', checkMobileLock);
+        window.addEventListener('resize', checkMobileLock);
+
+        // Initialize
+        lucide.createIcons();
+        document.getElementById('session-id').innerText = Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    </script>
+</body>
+</html>
